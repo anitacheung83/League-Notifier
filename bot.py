@@ -1,10 +1,13 @@
 import discord
 import responses
+import riot_requests
 
 
 async def send_message(message, user_message, is_private):
     try:
-        response = responses.get_response(user_message)
+        summoner_name = responses.get_response(user_message)
+        response = riot_requests.get_requests(summoner_name)
+
         await message.author.send(response) if is_private else await message.channel.send(response)
 
     except Exception as e:
