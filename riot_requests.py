@@ -11,19 +11,16 @@ na1_api_url = "https://na1.api.riotgames.com"
 americas_api_url = "https://americas.api.riotgames.com"
 
 
-def get_requests_by_summoner_name(summoner_name: str) -> str:
+def get_summoner_by_summoner_name(summoner_name: str, type: str) -> str:
     ''' Return puuid given summonerName
     '''
-    # api_url = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summoner_name
     path_param = f"/lol/summoner/v4/summoners/by-name/{summoner_name}"
     query = na1_api_url + path_param + '?api_key=' + api_key
-    # api_url = api_url + '?api_key=' + api_key
 
     res = requests.get(query)
     player_info = res.json()
-    puuid = player_info['puuid']
 
-    return puuid
+    return player_info[type]
 
 
 def get_matches_by_puuid(puuid: str) -> List:
@@ -83,11 +80,7 @@ def get_match_by_matchid(matchId: str) -> Dict:
     game_end = datetime.datetime.fromtimestamp(game_end)
 
     game_duration = match_info['info']['gameDuration']
-    minutes, seconds = divmod(game_duration/1000, 60)
-
-    # print("game_start: " + str(game_start))
-    # print("game_duration: " + str(game_duration))
-    # print("game_end: " + str(game_end))
+    minutes, seconds = divmod(game_duration, 60)
 
     teams = get_team_info(match_info)
 
@@ -101,3 +94,17 @@ def get_match_by_matchid(matchId: str) -> Dict:
     print(match)
 
     return match
+
+
+def get_active_game_by_summoner_id(encryptedSummonerId: str):
+    path_param = f"/lol/spectator/v4/active-games/by-summoner/{encryptedSummonerId}"
+    query = na1_api_url + path_param + "?api_key=" + api_key
+
+    res = requests.get(query)
+
+    if (res.status_code != 200):
+        return "Your boyfriend is not currently playing League of Legends"
+    else:
+        match_info = res.json()
+        # Parse the data first
+        return match_info
