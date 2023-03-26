@@ -39,15 +39,35 @@ def get_response(message: str) -> str:
         return "`This is a help message that you can modify`"
 
     if "sn" in p_message:
-        summoner_name = p_message.removeprefix('sn:')  # Remove prefix 'sn'
-        encoded_summoner_name = urllib.parse.quote(
-            summoner_name)  # url encode summoner_name
-        puuid = riot_requests.get_requests_by_summoner_name(
-            encoded_summoner_name)  # Get puuid
-        matches = riot_requests.get_matches_by_puuid(
-            puuid)  # Return a lists of the last 20 games
+        # Remove prefix 'sn:'
+        summoner_name = p_message.removeprefix('sn:')
 
+        # url encode summoner_name
+        encoded_summoner_name = urllib.parse.quote(summoner_name)
+
+        # Get puuid
+        puuid = riot_requests.get_summoner_by_summoner_name(
+            encoded_summoner_name, "puuid")
+
+        # Return a lists of the past 6 matches
+        matches = riot_requests.get_matches_by_puuid(puuid)
+
+        # Parse match data to str
         matches_info = parse_matches(matches, summoner_name)
         return matches_info
+
+    if "curr" in p_message:
+        # Remove prefix 'curr:'
+        summoner_name = p_message.removeprefix('curr:')
+
+        # url encode summoner_name
+        encoded_summoner_name = urllib.parse.quote(summoner_name)
+
+        # Get encrypted summoner id
+        summoner_id = riot_requests.get_summoner_by_summoner_name(
+            summoner_name, "id")
+
+        # Get active game
+        active_game = riot_requests.get_active_game_by_summoner_id(summoner_id)
 
     return "I didn't understand what you wrote. Try typing '!help'."
