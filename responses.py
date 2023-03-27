@@ -5,7 +5,7 @@ import riot_requests
 
 
 def parse_matches(matches: List, summoner_name: str) -> str:
-    matches_str = f"{summoner_name}: \n\n"
+    matches_str = f"Past games for {summoner_name}: \n\n"
     i = 1
     for match in matches:
         # print(match)
@@ -38,36 +38,35 @@ def get_response(message: str) -> str:
     if p_message == "!help":
         return "`This is a help message that you can modify`"
 
-    if "sn" in p_message:
-        # Remove prefix 'sn:'
-        summoner_name = p_message.removeprefix('sn:')
-
-        # url encode summoner_name
-        encoded_summoner_name = urllib.parse.quote(summoner_name)
-
-        # Get puuid
-        puuid = riot_requests.get_summoner_by_summoner_name(
-            encoded_summoner_name, "puuid")
-
-        # Return a lists of the past 6 matches
-        matches = riot_requests.get_matches_by_puuid(puuid)
-
-        # Parse match data to str
-        matches_info = parse_matches(matches, summoner_name)
-        return matches_info
-
-    if "curr" in p_message:
-        # Remove prefix 'curr:'
-        summoner_name = p_message.removeprefix('curr:')
-
-        # url encode summoner_name
-        encoded_summoner_name = urllib.parse.quote(summoner_name)
-
-        # Get encrypted summoner id
-        summoner_id = riot_requests.get_summoner_by_summoner_name(
-            summoner_name, "id")
-
-        # Get active game
-        active_game = riot_requests.get_active_game_by_summoner_id(summoner_id)
-
     return "I didn't understand what you wrote. Try typing '!help'."
+
+
+def curr(summoner_name: str) -> str:
+
+    # Get url encoded summoner name
+    encoded_summoner_name = urllib.parse.quote(summoner_name)
+
+    # Get encrypted summoner id
+    summoner_id = riot_requests.get_summoner_by_summoner_name(
+        encoded_summoner_name, "id")
+
+    # Get active game
+    active_game = riot_requests.get_active_game_by_summoner_id(summoner_id)
+    return active_game
+
+
+def past(summoner_name: str) -> str:
+
+    encoded_summoner_name = urllib.parse.quote(summoner_name)
+
+    # Get puuid
+    puuid = riot_requests.get_summoner_by_summoner_name(
+        encoded_summoner_name, "puuid")
+
+    # Return a lists of the past 6 matches
+    matches = riot_requests.get_matches_by_puuid(puuid)
+
+    # Parse match data to str
+    matches_info = parse_matches(matches, summoner_name)
+
+    return matches_info

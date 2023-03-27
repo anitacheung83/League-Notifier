@@ -91,12 +91,43 @@ def get_match_by_matchid(matchId: str) -> Dict:
         "teams": teams
     }
 
-    print(match)
-
     return match
 
 
-def get_active_game_by_summoner_id(encryptedSummonerId: str):
+def get_participants(participants: List) -> Dict:
+    team0 = {"team_id": "", "participants": []}
+    team1 = {"team_id": "", "participants": []}
+
+    for participant in participants:
+        # Initialize team name
+        if team0["team_id"] == "":
+            team0["team_id"] = participant["teamId"]
+        elif team1["team_id"] == "":
+            team1["team_id"] = participant["teamId"]
+        else:
+            pass
+
+        # Add participant to List
+        if team0["team_id"] == participant["teamId"]:
+            team0["participants"].append(participant["summonerName"])
+        else:
+            team1["participants"].append(participant["summonerName"])
+
+    teams = [team0, team1]
+
+    return teams
+
+
+def active_game_to_str(match: Dict) -> str:
+    start_time = f"Start Time: {match['game_start']} \n"
+    game_length = f"Game Time: {match['game_length']} \n"
+    team0 = f"Team {match['teams'][0]['team_id']}: {match['teams'][0]['participants']}\n"
+    team1 = f"Team {match['teams'][1]['team_id']}: {match['teams'][1]['participants']}\n\n"
+
+    return "Active game: \n" + start_time + game_length + team0 + team1
+
+
+def get_active_game_by_summoner_id(encryptedSummonerId: str) -> Dict:
     path_param = f"/lol/spectator/v4/active-games/by-summoner/{encryptedSummonerId}"
     query = na1_api_url + path_param + "?api_key=" + api_key
 
@@ -106,5 +137,16 @@ def get_active_game_by_summoner_id(encryptedSummonerId: str):
         return "Your boyfriend is not currently playing League of Legends"
     else:
         match_info = res.json()
+        game_start = match_info['gameStartTime']//1000
+        game_start = datetime.datetime.fromtimestamp(game_start)
+
+        game_length = match_info['gameLength']
+        minutes, seconds = divmod(game_length, 60)
+        teams = get_participants(match_info['participants'])
+
+        match = {"gameStart": game_start,
+                 "gameLength": f"{minutes}, {seconds}",
+                 "teams": teams}
+
         # Parse the data first
-        return match_info
+        return match
