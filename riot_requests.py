@@ -25,7 +25,7 @@ def get_summoner_by_summoner_name(summoner_name: str, type: str) -> str:
 
 def get_matches_by_puuid(puuid: str) -> List:
 
-    path_param = f"/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count=6"
+    path_param = f"/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count=5"
     query = americas_api_url + path_param + '&api_key=' + api_key
 
     res = requests.get(query)
