@@ -74,4 +74,4 @@ def run_discord_bot():
         await interaction.followup.send(past_games)
         # await interaction.response.send_message(past_games)
 
-    client.run(TOKEN)
+    client.run(str(TOKEN))
